@@ -17,17 +17,31 @@ void do_cli(FILE *fp, int sockfd, struct sockaddr *pservaddr, socklen_t servlen)
 		perror("connect error"); 
 		exit(1); 
 	} 
+        int val = 1;
+        if( setsockopt( sockfd, SOL_IP, IP_RECVERR, &val, sizeof(val) ) == -1 ){
+            perror("setsockopt: ");
+            exit(1);
+        }
 	while(fgets(sendline, MAXLINE, fp) != NULL) 
 	{ 
-		write(sockfd, sendline, strlen(sendline)); 
+                printf("begin send \n" );
+		n = write(sockfd, sendline, strlen(sendline)); 
+                printf("end send \n" );
+		if(n == -1) 
+		{ 
+			perror("write error"); 
+			exit(1); 
+		} 
+                printf("begin read \n" );
 		n = read(sockfd, recvline, MAXLINE); 
+                printf("end read \n" );
 		if(n == -1) 
 		{ 
 			perror("read error"); 
 			exit(1); 
 		} 
 		recvline[n] = 0; 
-		fputs(recvline, stdout); 
+		printf("recv data:%s\n",recvline); 
 	} 
 } 
 int main(int argc, char **argv) 
